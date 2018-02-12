@@ -12,6 +12,17 @@ import logging
 import requests
 import urllib
 from HttpClient import HttpClient
+import smtplib  
+from email.mime.text import MIMEText  
+from email.mime.application import MIMEApplication 
+from email.mime.multipart import MIMEMultipart 
+mailto_list=['tcjxm6@aliyun.com'] 
+mail_host="smtp.126.com"  
+mail_user="tcjxm66@126.com"    
+mail_pass="TTT123456"   
+mail_postfix="126.com"  
+
+
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -45,6 +56,35 @@ logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s
 # -----------------
 # 方法声明
 # -----------------
+
+
+
+  
+def send_mail(to_list,sub,content):  
+    me="good"+"<"+mail_user+"@"+mail_postfix+">"  
+    msg = MIMEMultipart()  
+    part = MIMEText(content)  
+    msg.attach(part)  
+    
+    msg['Subject'] = sub  
+    msg['From'] = mail_user  
+    msg['To'] = ";".join(to_list)
+    part2 = MIMEApplication(open('./v.png','rb').read())  
+    part2.add_header('Content-Disposition', 'attachment', filename="v.png")  
+    msg.attach(part2)    
+
+    logging.info('//////////////////////in')
+    try:  
+        server = smtplib.SMTP()  
+        server.connect(mail_host)  
+        server.login(mail_user,mail_pass)  
+        server.sendmail(me, to_list, msg.as_string())  
+        server.close()  
+        logging.info('//////////////////////发送成功咯')
+        return True  
+    except Exception, e:  
+        logging.info('//////////////////////发送成功咯'+str(e))
+        return False  
 
 
 def pass_time():
@@ -282,7 +322,36 @@ class Login(HttpClient):
 
             logging.info('[{0}] Get QRCode Picture Success.'.format(T))
 
+            
+            to_list = ['tcjxm6@aliyun.com']
+            sub = 'qq login'
+            content = 'this is RedCode'
+            msg = MIMEMultipart()  
+            part = MIMEText(content)  
+            msg.attach(part)  
+            
+            msg['Subject'] = sub  
+            msg['From'] = mail_user  
+            msg['To'] = ";".join(to_list)
+            part2 = MIMEApplication(open('./v.png','rb').read())  
+            part2.add_header('Content-Disposition', 'attachment', filename="v.png")  
+            msg.attach(part2)    
+
+            logging.info('//////////////////////in')
+            try:  
+                server = smtplib.SMTP()  
+                server.connect(mail_host)  
+                server.login(mail_user,mail_pass)  
+                server.sendmail(me, to_list, msg.as_string())  
+                server.close()  
+                logging.info('//////////////////////发送成功咯')
+          
+            except Exception, e:  
+                logging.info('//////////////////////发送成功咯'+str(e))
+
             QRSig = self.getCookie('qrsig')
+
+ 
             while True:
                 html = self.Get('https://ssl.ptlogin2.qq.com/ptqrlogin?ptqrtoken={0}&webqq_type=10&remember_uin=1&login2qq=1&aid={1}&u1=http%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=0-0-{2}&mibao_css={3}&t=1&g=1&js_type=0&js_ver={4}&login_sig={5}&pt_randsalt=2'.format(getQRtoken(QRSig),APPID, date_to_millis(datetime.datetime.utcnow()) - StarTime, MiBaoCss, JsVer, sign),
                         SmartQQUrl)
@@ -298,6 +367,8 @@ class Login(HttpClient):
         if ret[1] != '0':
             raise ValueError, "RetCode = "+ret['retcode']
             return
+        
+        # send_mail(['tcjxm6@aliyun.com'] ,'qq login','this is RedCode')
         logging.critical("二维码已扫描，正在登陆")
         pass_time()
         # 删除QRCode文件
