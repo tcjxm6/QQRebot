@@ -83,7 +83,7 @@ def send_mail(to_list,sub,content):
         logging.info('//////////////////////发送成功咯')
         return True  
     except Exception, e:  
-        logging.info('//////////////////////发送成功咯'+str(e))
+        logging.info('//////////////////////发送失败'+str(e))
         return False  
 
 
@@ -323,34 +323,10 @@ class Login(HttpClient):
             logging.info('[{0}] Get QRCode Picture Success.'.format(T))
 
             
-            to_list = ['tcjxm6@aliyun.com']
-            sub = 'qq login'
-            content = 'this is RedCode'
-            msg = MIMEMultipart()  
-            part = MIMEText(content)  
-            msg.attach(part)  
             
-            msg['Subject'] = sub  
-            msg['From'] = mail_user  
-            msg['To'] = ";".join(to_list)
-            part2 = MIMEApplication(open('./v.png','rb').read())  
-            part2.add_header('Content-Disposition', 'attachment', filename="v.png")  
-            msg.attach(part2)    
-
-            logging.info('//////////////////////in')
-            try:  
-                server = smtplib.SMTP()  
-                server.connect(mail_host)  
-                server.login(mail_user,mail_pass)  
-                server.sendmail(me, to_list, msg.as_string())  
-                server.close()  
-                logging.info('//////////////////////发送成功咯')
-          
-            except Exception, e:  
-                logging.info('//////////////////////发送成功咯'+str(e))
 
             QRSig = self.getCookie('qrsig')
-
+            send_mail(['tcjxm6@aliyun.com'] ,'qq login','this is RedCode')
  
             while True:
                 html = self.Get('https://ssl.ptlogin2.qq.com/ptqrlogin?ptqrtoken={0}&webqq_type=10&remember_uin=1&login2qq=1&aid={1}&u1=http%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&action=0-0-{2}&mibao_css={3}&t=1&g=1&js_type=0&js_ver={4}&login_sig={5}&pt_randsalt=2'.format(getQRtoken(QRSig),APPID, date_to_millis(datetime.datetime.utcnow()) - StarTime, MiBaoCss, JsVer, sign),
@@ -368,7 +344,7 @@ class Login(HttpClient):
             raise ValueError, "RetCode = "+ret['retcode']
             return
         
-        # send_mail(['tcjxm6@aliyun.com'] ,'qq login','this is RedCode')
+        #send_mail(['tcjxm6@aliyun.com'] ,'qq login','this is RedCode')
         logging.critical("二维码已扫描，正在登陆")
         pass_time()
         # 删除QRCode文件
