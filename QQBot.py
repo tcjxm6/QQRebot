@@ -622,7 +622,9 @@ class group_thread(threading.Thread):
             pattern = re.compile(r'^(?:!|！)(learn|delete) {(.+)}{(.+)}')
             match = pattern.match(content)
 
-            if ' price' in content:
+            if 'rhoc price' == content:
+                self.getRHOC(content)
+            elif ' price' in content:
                 try:
                     self.getBTM(content)
                     pass
@@ -662,8 +664,45 @@ class group_thread(threading.Thread):
             logging.warning("message seq repeat detected.")
         self.lastseq = seq
 
+    def getRHOC(self,content):
+        url = 'https://kitchen-2.kucoin.com/v1/RHOC-ETH/open/tick?c=&lang=zh_CN'
+        
+        try:
+            response = requests.get(url,timeout=10000)
+            logging.info('+++++++++++++++'+str(response))
+            pass
+        except Exception as e:
+            logging.info('+++++++++++++++-------------'+str(e))
+            print e
+
+
+        showDic = self.getGatePrice('eth price')
+
+        rspDic = json.loads(response.text)
+        logging.info('+++++++-'+str(rspDic))
+        data = rspDic["data"]
+        val1 = data['sell']
+        val2 = data['buy']
+        lastDealPrice = data['lastDealPrice']
+        lastDealPriceCNY = float(showDic['last_cny']) * float(lastDealPrice)
+        askStr = '最新卖1价格:  ' + str(val1) + '  (usd)\n'
+        buyStr = '最新买1价格:  ' + str(val2) + '  (usd)\n'
+        lastDealPrice = '最新成交价:  ' + str(data['lastDealPrice']) + '(usd)  |  ' + str(lastDealPriceCNY) + '(CNY)\n'
+        ethPrice = 'ETH价格:  ' + str(showDic['last_cny'])
+
+        str1 = '##########' + content + '##########' + '\n' + askStr + buyStr + lastDealPrice + ethPrice
+        self.reply(str1)
+
+        pass
 
     def getBTM(self,content):
+        
+        showDic = self.getGatePrice(content)
+        self.reply(showDic['showStr'])
+        
+        pass
+
+    def getGatePrice(self,content):
         coin = content.split(' ')[0]
 
         url = 'https://gateio.io/json_svr/query/?u=11&c=903319&type=ask_bid_list_table&symbol='+coin+'_usdt'
@@ -683,13 +722,27 @@ class group_thread(threading.Thread):
         askStr = '最新卖1价格:  ' + str(val1) + '  (usd)\n'
         buyStr = '最新买1价格:  ' + str(val2) + '  (usd)\n'
         allPriceStr = ''
+        lastCNY = ''
         for i, val in enumerate(global_markets_table):
             allPriceStr = allPriceStr + val['name_cn'] + ': last_cny  ' + val['last_cny'] + '; last_usd  ' + val['last_usd'] + '\n'
+            if val['name_cn'] == 'gate.io':
+                lastCNY = val['last_cny']
+                pass
+            pass
 
 
         str1 = '##########' + content + '##########' + '\n' + askStr + buyStr + allPriceStr
-        self.reply(str1)
         
+        showDic = {}
+        showDic['askVal'] = str(val1)
+        showDic['buyStr'] = str(val2)
+        showDic['askStr'] = askStr
+        showDic['buyStr'] = buyStr
+        showDic['allPriceStr'] = allPriceStr
+        showDic['showStr'] = str1
+        showDic['last_cny'] = lastCNY
+        return showDic
+
         pass
 
     def tucao(self, content):
