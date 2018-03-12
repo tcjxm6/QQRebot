@@ -664,7 +664,8 @@ class group_thread(threading.Thread):
 
     def getBTM(self,content):
         coin = content.split(' ')[0]
-        url = 'https://gateio.io/json_svr/query/?u=11&c=180979&type=ask_bid_list_table&symbol='+coin+'_usdt'
+        
+        url = 'https://gateio.io/json_svr/query/?u=11&c=903319&type=ask_bid_list_table&symbol='+coin+'_usdt'
         try:
             response = requests.post(url,timeout=1000)
             pass
