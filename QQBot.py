@@ -627,6 +627,7 @@ class group_thread(threading.Thread):
                     self.getBTM(content)
                     pass
                 except Exception as e:
+                    logging.info(str(e))
                     print e
                 
 
@@ -664,12 +665,14 @@ class group_thread(threading.Thread):
 
     def getBTM(self,content):
         coin = content.split(' ')[0]
-        
+
         url = 'https://gateio.io/json_svr/query/?u=11&c=903319&type=ask_bid_list_table&symbol='+coin+'_usdt'
         try:
-            response = requests.post(url,timeout=1000)
+            response = requests.post(url,timeout=10000)
+            logging.info('+++++++++++++++'+str(response))
             pass
         except Exception as e:
+            logging.info('+++++++++++++++-------------'+str(e))
             print e
             
         
