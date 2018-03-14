@@ -666,7 +666,7 @@ class group_thread(threading.Thread):
         self.lastseq = seq
 
     def getRHOC(self,content):
-        url = 'https://kitchen-3.kucoin.com/v1/open/chart/history?symbol=RHOC-ETH&resolution=480&from=1520719981&to=1521007981'
+        url = 'https://kitchen-2.kucoin.com/v1/RHOC-ETH/open/tick?c=&lang=zh_CN'
         
         try:
             response = requests.get(url,timeout=10000)
