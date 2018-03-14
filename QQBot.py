@@ -431,6 +431,7 @@ class check_msg(threading.Thread):
         # 心跳包轮询
         while 1:
             if E > 5:
+                letGO()
                 break
             try:
                 ret = self.check()
@@ -863,11 +864,9 @@ class group_thread(threading.Thread):
         except Exception, e:
             logging.error("ERROR:"+str(e))
         return False
-# -----------------
-# 主程序
-# -----------------
 
-if __name__ == "__main__":
+
+def letGO():
     vpath = './v.png'
     qq = 0
     if len(sys.argv) > 1:
@@ -898,3 +897,10 @@ if __name__ == "__main__":
 
 
     t_check.join()
+    pass
+# -----------------
+# 主程序
+# -----------------
+
+if __name__ == "__main__":
+    letGO()
